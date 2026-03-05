@@ -1,0 +1,95 @@
+1) GitHub REST API
+- endpoint: GET https://api.github.com/users/{username}
+- response data: JSON chứa thông tin của các tài khoản public (id, avatar_url, html_url,...)
+- api sử dụng theo chuẩn REST, với phương thức HTTP GET
+- không cần phương thức xác thực (token,...)
+ Ví dụ endpoint cụ thể: GET https://api.github.com/users/octocat
+ Response: 
+  {
+    "login": "octocat",
+    "id": 583231,
+    "node_id": "MDQ6VXNlcjU4MzIzMQ==",
+    "avatar_url": "https://avatars.githubusercontent.com/u/583231?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/octocat",
+    "html_url": "https://github.com/octocat",
+    "followers_url": "https://api.github.com/users/octocat/followers",
+    "following_url": "https://api.github.com/users/octocat/following{/other_user}",
+    "gists_url": "https://api.github.com/users/octocat/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/octocat/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/octocat/subscriptions",
+    "organizations_url": "https://api.github.com/users/octocat/orgs",
+    "repos_url": "https://api.github.com/users/octocat/repos",
+    "events_url": "https://api.github.com/users/octocat/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/octocat/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false,
+    "name": "The Octocat",
+    "company": "@github",
+    "blog": "https://github.blog",
+    "location": "San Francisco",
+    "email": null,
+    "hireable": null,
+    "bio": null,
+    "twitter_username": null,
+    "public_repos": 8,
+    "public_gists": 8,
+    "followers": 21972,
+    "following": 9,
+    "created_at": "2011-01-25T18:44:36Z",
+    "updated_at": "2026-02-22T12:22:52Z"
+  }
+2) Open-Meteo Weather API
+- Là một Weather Forecast API cho phép lấy dữ liệu thời tiết thực dựa trên tọa độ
+- endpoint: https://api.open-meteo.com/v1/forecast?latitude={latitude}&longitude={longitude}&current_weather=true
+- response data: JSON chứa thông tin thời tiết như nhiệt độ, tốc độ gió, ...
+- api sử dụng theo chuẩn REST, với phương thức HTTP GET
+- Không yều cầu xác thực, cho phép truy cập miễn phí
+ Ví dụ: GET https://api.open-meteo.com/v1/forecast?latitude=21.0285&longitude=105.8542&current_weather=true
+ Response: 
+  {
+  "latitude": 21,
+  "longitude": 105.875,
+  "generationtime_ms": 0.0587701797485352,
+  "utc_offset_seconds": 0,
+  "timezone": "GMT",
+  "timezone_abbreviation": "GMT",
+  "elevation": 19,
+  "current_weather_units": {
+    "time": "iso8601",
+    "interval": "seconds",
+    "temperature": "°C",
+    "windspeed": "km/h",
+    "winddirection": "°",
+    "is_day": "",
+    "weathercode": "wmo code"
+  },
+  "current_weather": {
+    "time": "2026-03-05T06:15",
+    "interval": 900,
+    "temperature": 24.1,
+    "windspeed": 5,
+    "winddirection": 120,
+    "is_day": 1,
+    "weathercode": 3
+  }
+}
+3) NASA Open API
+- endpoint: GET https://api.nasa.gov/planetary/apod?api_key={key}
+- response data: JSON chứa url của ảnh thiên văn trong ngày, tiêu đề ảnh, ... 
+- Dùng để lấy ảnh thiên văn trong ngày do NASA công bố
+- api sử dụng theo chuẩn REST, với phương thức HTTP GET
+- Có sử dụng key api để xác thực, nhưng NASA có {DEMO_KEY} là key công khai sử dụng
+ Ví dụ: GET https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY
+ Response: 
+  {
+  "copyright": "Satoru Murata;\n\nText: \nKeighley Rockcliffe \n(NASA\nGSFC, \nUMCP, \nCRESST II)",
+  "date": "2026-03-05",
+  "explanation": "rlier this week, Earth’s shadow swept across the full Moon in the year’s only total lunar eclipse. This stunning sequence combines images showing the Moon’s path across the night sky.  Each lunar image captures our planet’s shadow gradually engulfing the Moon, culminating in its red glow.  Sunlight scatters and refracts as it passes through Earth’s atmosphere toward the Moon. Shorter wavelength light (blue and green) scatters more efficiently, leaving red, orange, and yellow hues to paint the lunar surface. Tsé Bit'a'í (”rock with wings”, also known as Shiprock), located in Navajo Nation, provides a powerful volcanic foreground central to this photo and to stories of Navajo origin, adventure, and heroism. As the first full moon of the lunar new year, this eclipse held significance across cultures. Visible from East Asia to North America, this eclipse united observers across great distances, a cosmic reminder that we share the same sky.",
+  "hdurl": "https://apod.nasa.gov/apod/image/2603/EclipseSequence_Murata_1080.jpg",
+  "media_type": "image",
+  "service_version": "v1",
+  "title": "Total Lunar Eclipse over Tsé Bit'a'í",
+  "url": "https://apod.nasa.gov/apod/image/2603/EclipseSequence_Murata_1080.jpg"
+}

@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "INT3505 W3 REST API Demo",
+    "_postman_id": "8f7c9d1a-1234-5678-9abc-def012345678",
+    "description": "Collection dùng để test server Flask trong w3/rest_api_server.py.\n\nBase URL: http://localhost:5004/api/v1",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5004/api/v1/health-check",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "health-check"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - List all",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - List by author",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books?author=Robert%20C.%20Martin",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books"
+          ],
+          "query": [
+            {
+              "key": "author",
+              "value": "Robert C. Martin"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - Create",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Clean Code\",\n  \"author\": \"Robert C. Martin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - Get by id",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - Update (PUT)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Clean Code (2nd Edition)\",\n  \"author\": \"Robert C. Martin\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Books - Delete",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5004/api/v1/books/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "5004",
+          "path": [
+            "api",
+            "v1",
+            "books",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "protocolProfileBehavior": {}
+}
+

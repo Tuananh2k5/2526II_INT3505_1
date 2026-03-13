@@ -19,8 +19,6 @@ Resource chính: `books` (danh từ số nhiều, lowercase, có versioning `/ap
 pip install flask
 ```
 
-Nên chạy lệnh này trong virtualenv nếu đây là project lớn.
-
 ---
 
 ## 2. Cấu trúc file chính

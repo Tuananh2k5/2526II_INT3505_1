@@ -33,8 +33,19 @@ class Book:
     updatedAt: str | None = None
 
 
+
+# Author dataclass và "database"
+@dataclass
+class Author:
+    id: int
+    name: str
+    createdAt: str
+    updatedAt: str | None = None
+
 _books: dict[int, Book] = {}
 _next_id: int = 1
+_authors: dict[int, Author] = {}
+_author_next_id: int = 1
 
 
 def _now_iso() -> str:
@@ -58,6 +69,7 @@ def _parse_int(value: Any, default: int, *, min_value: int | None = None, max_va
     return n
 
 
+
 def _validate_book_payload(payload: Any) -> tuple[dict[str, Any] | None, tuple[Response, int] | None]:
     # Validate theo schema: title (str, non-empty), author (str, non-empty), year (int >= 0)
     if not isinstance(payload, dict):
@@ -76,21 +88,106 @@ def _validate_book_payload(payload: Any) -> tuple[dict[str, Any] | None, tuple[R
 
     return {"title": title.strip(), "author": author.strip(), "year": year}, None
 
+def _validate_author_payload(payload: Any) -> tuple[dict[str, Any] | None, tuple[Response, int] | None]:
+    # Validate: name (str, non-empty)
+    if not isinstance(payload, dict):
+        return None, _error(400, "BAD_REQUEST", "Body must be a JSON object")
+    name = payload.get("name")
+    if not isinstance(name, str) or not name.strip():
+        return None, _error(400, "BAD_REQUEST", "Field 'name' is required and must be a non-empty string")
+    return {"name": name.strip()}, None
+
 
 # Seed data để test nhanh.
 def _seed():
-    global _next_id
-    samples = [
+    global _next_id, _author_next_id
+    # Seed authors
+    author_samples = [
+        {"name": "Robert C. Martin"},
+        {"name": "Andrew Hunt & David Thomas"},
+    ]
+    for s in author_samples:
+        author_id = _author_next_id
+        _author_next_id += 1
+        _authors[author_id] = Author(id=author_id, name=s["name"], createdAt=_now_iso())
+
+    # Seed books
+    book_samples = [
         {"title": "Clean Code", "author": "Robert C. Martin", "year": 2008},
         {"title": "The Pragmatic Programmer", "author": "Andrew Hunt & David Thomas", "year": 1999},
     ]
-    for s in samples:
+    for s in book_samples:
         book_id = _next_id
         _next_id += 1
         _books[book_id] = Book(id=book_id, createdAt=_now_iso(), **s)
 
-
 _seed()
+# =========================
+# API endpoints (5 endpoints)
+# =========================
+
+# ===== CRUD cho Author =====
+@app.get("/api/authors")
+def list_authors():
+    """
+    Lấy danh sách author, hỗ trợ phân trang (limit, offset) và tìm kiếm (q theo name)
+    """
+    limit = _parse_int(request.args.get("limit"), 10, min_value=1, max_value=100)
+    offset = _parse_int(request.args.get("offset"), 0, min_value=0)
+    q = request.args.get("q", "")
+    q = q.strip().lower() if isinstance(q, str) else ""
+
+    items = list(_authors.values())
+    if q:
+        items = [a for a in items if q in a.name.lower()]
+    total = len(items)
+    items = items[offset : offset + limit]
+    return jsonify({
+        "items": [asdict(a) for a in items],
+        "total": total,
+        "limit": limit,
+        "offset": offset,
+    })
+
+@app.post("/api/authors")
+def create_author():
+    global _author_next_id
+    payload = request.get_json(silent=True)
+    data, err = _validate_author_payload(payload)
+    if err:
+        return err
+    author_id = _author_next_id
+    _author_next_id += 1
+    author = Author(id=author_id, name=data["name"], createdAt=_now_iso())
+    _authors[author_id] = author
+    return jsonify(asdict(author)), 201
+
+@app.get("/api/authors/<int:author_id>")
+def get_author(author_id: int):
+    author = _authors.get(author_id)
+    if not author:
+        return _error(404, "NOT_FOUND", "Author not found")
+    return jsonify(asdict(author))
+
+@app.put("/api/authors/<int:author_id>")
+def update_author(author_id: int):
+    author = _authors.get(author_id)
+    if not author:
+        return _error(404, "NOT_FOUND", "Author not found")
+    payload = request.get_json(silent=True)
+    data, err = _validate_author_payload(payload)
+    if err:
+        return err
+    author.name = data["name"]
+    author.updatedAt = _now_iso()
+    return jsonify(asdict(author))
+
+@app.delete("/api/authors/<int:author_id>")
+def delete_author(author_id: int):
+    if author_id not in _authors:
+        return _error(404, "NOT_FOUND", "Author not found")
+    del _authors[author_id]
+    return ("", 204)
 
 
 # =========================

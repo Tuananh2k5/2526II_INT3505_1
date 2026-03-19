@@ -8,7 +8,107 @@ servers:
   - url: http://localhost:5000
 tags:
   - name: Books
+  - name: Authors
 paths:
+  /api/authors:
+    get:
+      tags: [Authors]
+      summary: Lấy danh sách tác giả
+      operationId: listAuthors
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/QAuthor"
+      responses:
+        "200":
+          description: Danh sách tác giả
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Author"
+                  total:
+                    type: integer
+                    example: 2
+                  limit:
+                    type: integer
+                    example: 10
+                  offset:
+                    type: integer
+                    example: 0
+    post:
+      tags: [Authors]
+      summary: Tạo tác giả mới
+      operationId: createAuthor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorCreate"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/authors/{authorId}:
+    get:
+      tags: [Authors]
+      summary: Lấy chi tiết 1 tác giả
+      operationId: getAuthor
+      parameters:
+        - $ref: "#/components/parameters/AuthorId"
+      responses:
+        "200":
+          description: Thông tin tác giả
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Authors]
+      summary: Cập nhật tác giả
+      operationId: updateAuthor
+      parameters:
+        - $ref: "#/components/parameters/AuthorId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AuthorUpdate"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Author"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Authors]
+      summary: Xóa tác giả
+      operationId: deleteAuthor
+      parameters:
+        - $ref: "#/components/parameters/AuthorId"
+      responses:
+        "204":
+          description: Xóa thành công (không có body)
+        "404":
+          $ref: "#/components/responses/NotFound"
   /api/books:
     get:
       tags: [Books]
@@ -110,6 +210,14 @@ paths:
           $ref: "#/components/responses/NotFound"
 components:
   parameters:
+    AuthorId:
+      name: authorId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID của tác giả
     BookId:
       name: bookId
       in: path
@@ -144,6 +252,13 @@ components:
       schema:
         type: string
       description: Từ khóa tìm theo title/author
+    QAuthor:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Từ khóa tìm theo tên tác giả
   schemas:
     Book:
       type: object
@@ -170,6 +285,39 @@ components:
           format: date-time
           nullable: true
           example: "2026-03-17T11:00:00Z"
+    Author:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Robert C. Martin
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-17T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-03-17T11:00:00Z"
+    AuthorCreate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+    AuthorUpdate:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
     BookCreate:
       type: object
       required: [title, author, year]

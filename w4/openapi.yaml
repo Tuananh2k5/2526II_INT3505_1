@@ -1,0 +1,221 @@
+openapi: 3.0.3
+info:
+  title: Book Manager API
+  version: 1.0.0
+  description: |
+    API quản lí sách (demo cho Buổi 4: OpenAPI/Swagger).
+servers:
+  - url: http://localhost:5000
+tags:
+  - name: Books
+paths:
+  /api/books:
+    get:
+      tags: [Books]
+      summary: Lấy danh sách sách
+      operationId: listBooks
+      parameters:
+        - $ref: "#/components/parameters/Limit"
+        - $ref: "#/components/parameters/Offset"
+        - $ref: "#/components/parameters/Q"
+      responses:
+        "200":
+          description: Danh sách sách
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Book"
+                  total:
+                    type: integer
+                    example: 2
+                  limit:
+                    type: integer
+                    example: 10
+                  offset:
+                    type: integer
+                    example: 0
+    post:
+      tags: [Books]
+      summary: Tạo sách mới
+      operationId: createBook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookCreate"
+      responses:
+        "201":
+          description: Tạo thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+  /api/books/{bookId}:
+    get:
+      tags: [Books]
+      summary: Lấy chi tiết 1 sách
+      operationId: getBook
+      parameters:
+        - $ref: "#/components/parameters/BookId"
+      responses:
+        "200":
+          description: Thông tin sách
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    put:
+      tags: [Books]
+      summary: Cập nhật sách
+      operationId: updateBook
+      parameters:
+        - $ref: "#/components/parameters/BookId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BookUpdate"
+      responses:
+        "200":
+          description: Cập nhật thành công
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        "400":
+          $ref: "#/components/responses/BadRequest"
+        "404":
+          $ref: "#/components/responses/NotFound"
+    delete:
+      tags: [Books]
+      summary: Xóa sách
+      operationId: deleteBook
+      parameters:
+        - $ref: "#/components/parameters/BookId"
+      responses:
+        "204":
+          description: Xóa thành công (không có body)
+        "404":
+          $ref: "#/components/responses/NotFound"
+components:
+  parameters:
+    BookId:
+      name: bookId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+      description: ID của sách
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 10
+      description: Số lượng bản ghi tối đa trả về
+    Offset:
+      name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 0
+        default: 0
+      description: Vị trí bắt đầu (phân trang)
+    Q:
+      name: q
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Từ khóa tìm theo title/author
+  schemas:
+    Book:
+      type: object
+      required: [id, title, author, year, createdAt]
+      properties:
+        id:
+          type: integer
+          example: 1
+        title:
+          type: string
+          example: Clean Code
+        author:
+          type: string
+          example: Robert C. Martin
+        year:
+          type: integer
+          example: 2008
+        createdAt:
+          type: string
+          format: date-time
+          example: "2026-03-17T10:00:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          nullable: true
+          example: "2026-03-17T11:00:00Z"
+    BookCreate:
+      type: object
+      required: [title, author, year]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 0
+    BookUpdate:
+      type: object
+      required: [title, author, year]
+      properties:
+        title:
+          type: string
+          minLength: 1
+        author:
+          type: string
+          minLength: 1
+        year:
+          type: integer
+          minimum: 0
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+          example: BAD_REQUEST
+        message:
+          type: string
+          example: Invalid payload
+  responses:
+    BadRequest:
+      description: Dữ liệu đầu vào không hợp lệ
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"
+    NotFound:
+      description: Không tìm thấy
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Error"

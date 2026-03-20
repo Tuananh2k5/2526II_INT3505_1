@@ -1,0 +1,31 @@
+FORMAT: 1A
+HOST: http://localhost:3000/api
+
+# Library Management API
+
+API for managing books and authors in a library.
+
+## Books Collection [/books]
+
+### List All Books [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": "1",
+                "title": "Clean Code",
+                "authorId": "a1"
+            }
+        ]
+
+### Add a New Book [POST]
+
++ Request (application/json)
+
+        {
+            "title": "Design Patterns",
+            "authorId": "a2"
+        }
+
++ Response 201 (application/json)

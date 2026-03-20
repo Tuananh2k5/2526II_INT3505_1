@@ -15,6 +15,13 @@ from flask_swagger_ui import get_swaggerui_blueprint
 # =========================
 app = Flask(__name__)
 
+@app.get("/")
+def index():
+    return jsonify({
+        "message": "Welcome to Book Manager API! Go to /docs for Swagger UI.",
+        "status": "ok"
+    })
+
 # Đường dẫn tới file OpenAPI. Dùng đường dẫn tuyệt đối để chạy từ bất kỳ cwd nào.
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 OPENAPI_PATH = os.path.join(BASE_DIR, "openapi.yaml")

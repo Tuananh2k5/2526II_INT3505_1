@@ -1,56 +1,74 @@
-# Buổi 6: Authentication và Authorization (Flask Backend)
+# RESTful API Flask (Week 6)
 
-Backend cơ bản triển khai bằng Flask đáp ứng các yêu cầu thực hành của Buổi 6 về Web Security (JWT, Authentication & Authorization).
+## Tổng quan dự án
 
-## 1. So sánh JWT vs OAuth 2.0
+Dự án này là một API RESTful được xây dựng bằng Flask nhằm trình diễn các best practice trong bảo mật và authentication. Dự án bao gồm các hệ thống: Registration, Login (JWT với access token và refresh token thông qua HttpOnly cookie), Refresh token rotation để chặn Replay attack, Phân quyền người dùng theo Model RBAC (Roles) lẫn Scope-based, và tài liệu hóa qua Swagger UI.
 
-*   **JWT (JSON Web Token):** Là một *định dạng* token dùng để truyền tải thông tin an toàn giữa các bên dưới dạng JSON object. Thường dùng cho việc xác thực (Authentication - Client là ai) trong kiến trúc stateless (server không cần phải lưu trữ session).
-*   **OAuth 2.0:** Là một *giao thức/framework* ủy quyền (Authorization - Client được làm gì). Cho phép ứng dụng bên thứ 3 truy cập tài nguyên mà không cần trực tiếp chia sẻ thông tin đăng nhập (như mật khẩu). OAuth 2.0 thường *sử dụng* JWT để làm định dạng cho token truy cập (Access Token).
+### So sánh JWT và OAuth 2.0
+- **JWT (JSON Web Token):** Là một định dạng token (gọn nhẹ và an toàn). JWT tự mang theo thông tin xác thực (như `sub`, `roles`, `scopes`) và chữ ký (signature) bên trong chính bản thân nó thay vì lưu trạng thái tại server.  
+- **OAuth 2.0:** Là một khung (framework) ủy quyền xác định luồng giao tiếp giữa client, resource server và authorization server, cho phép ứng dụng bên thứ ba truy cập tài nguyên (ví dụ app của bạn dùng Google Account để login) thông qua các `scopes`. OAuth 2.0 thường dùng JWT làm định dạng cho Access Token.
 
-## 2. Các khái niệm cơ bản
+---
 
-*   **Bearer Token:** Loại token mà bất kỳ ai nắm giữ ("bearer") đều có thể sử dụng (giống như tiền mặt). Do đó, token này luôn phải được bảo vệ nghiêm ngặt (truyền qua HTTPS, lưu trữ an toàn).
-*   **Refresh Token:** Token đặc biệt có thời hạn sống dài, dùng để đổi lấy Access Token mới khi Access Token cũ hết hạn. Cơ chế này giúp người dùng không phải đăng nhập lại liên tục trong khi vẫn thu ngắn được tuổi thọ của Access Token (để giảm thiểu hậu quả nếu Access Token bị lộ).
-*   **Roles:** Vai trò của thực thể trong hệ thống (ví dụ: `admin`, `user`). Dùng để phân quyền truy cập tới chức năng, endpoint.
-*   **Scopes:** Phạm vi quyền hạn chi tiết (ví dụ: `read`, `write`, `delete`). Dùng để giới hạn việc truy cập, thay đổi tài nguyên ở cấp độ hành động.
+## Tính năng
 
-## 3. Triển khai API bằng Flask
+1. **Authentication:** 
+    - Đăng ký và Đăng nhập bảo mật sử dụng mật khẩu mã hóa (bcrypt).
+    - Session-less nhưng an toàn qua **JWT**.
+    - Cấp **Access Token** ngắn hạn (10 phút) gửi về cho client qua JSON.
+    - Cấp **Refresh Token** dài hạn (7 ngày), an toàn hơn bằng cách lưu giữ tại cookie `HttpOnly` (chống lộ mã qua XSS).
+    - Endpoint `/refresh` cấp cặp token mới và tự động hủy bỏ (revoke) JTI của token cũ chống replay.
 
-### Cài đặt môi trường
+2. **Authorization (RBAC & Scope-based):**
+    - Kiểm soát theo Role (VD như `admin` có quyền xóa tài nguyên).
+    - Kiểm soát theo Scopes trên token cấp phát (`read:item`, `write:item`).
 
-1.  Cài đặt các thư viện cần thiết:
-    ```bash
-    pip install -r requirements.txt
-    ```
+3. **Resources (CRUD for Item):**
+    - `GET /items`: Lấy danh sách có hỗ trợ phân trang (`page`, `per_page`).
+    - `POST /items`: Tạo item mới.
+    - `GET /items/<id>`, `PUT /items/<id>`, `DELETE /items/<id>` (yêu cầu quyền Admin cho DELETE).
 
-### Chạy ứng dụng
+4. **Security Best Practices:**
+    - Không lưu thông tin nhạy cảm vào JWT payload.
+    - Chữ ký trên JWT được ký thông qua thuật toán mạnh (HS256).
+    - Tính năng thiết lập Blocklist thu hồi mã khi user đăng xuất, nhằm bảo đảm Token hết hiệu lực.
 
-2.  Khởi động server Flask:
-    ```bash
-    python app.py
-    ```
-    Server sẽ mặc định chạy tại `http://127.0.0.1:5000`.
+5. **Tài liệu & Test (Swagger UI):**
+    - Có sẵn Swagger UI ở `/apidocs`.
 
-### Các endpoints chính:
+---
 
-*   `POST /login`: Nhận payload JSON `{ "username": "admin", "password": "password123" }` (hoặc `user1`). Trả về `access_token` và `refresh_token`.
-*   `POST /refresh`: Nhận `{ "refresh_token": "<token_ở_trên>" }` để cấp lại `access_token` mới khi phiên bản cũ hết hạn.
-*   `GET /protected`: Yêu cầu gửi kèm Header `Authorization: Bearer <access_token>`. Trả về thông tin user, roles, scopes hiện tại.
-*   `GET /admin-only`: Yêu cầu token hợp lệ CÓ role là `admin`.
-*   `POST /write-data`: Yêu cầu token hợp lệ CÓ chứa scope `write`.
+## Hướng dẫn sử dụng
 
-## 4. Security Audit và Đề xuất khắc phục rủi ro
+### 1. Cài đặt Python Dependencies
+Mở Terminal, đi tới thư mục `w6` và cài đặt các gói yêu cầu:
+```bash
+cd w6
+pip install -r requirements.txt
+```
 
-### Rủi ro 1: Token Leakage (Lộ Token qua XSS hoặc URL)
-*   **Phát hiện:** Dự án mẫu cung cấp endpoint `/insecure-login` (có thể rò rỉ token qua URL params nếu được gọi bằng GET, khi đó nó được lưu trong lịch sử trình duyệt hoặc log máy chủ proxy). Ngoài ra, nếu ứng dụng frontend lưu JWT vào `localStorage`, nó có nguy cơ bị lộ khi bị tấn công XSS.
-*   **Khắc phục đề xuất:**
-    *   Sử dụng phương thức `POST` và truyền token qua vùng Header HTTP (ví dụ: `Authorization: Bearer <token>`) thay vì URL parameter.
-    *   Lưu trữ token ở `HttpOnly Cookies` thay vì `localStorage` với các dự án Web. Cookies này không thể bị truy cập bằng Javascript trên trình duyệt, nhờ đó miễn nhiễm với hình thức tấn công XSS lấy cắp token.
-    *   Bắt buộc luôn sử dụng HTTPS trên kết nối thực tế.
+### 2. Tạo Migrations và khởi tạo Database
+Khởi tạo cơ sở dữ liệu SQLite trong thư mục dự án:
+```bash
+flask db init
+flask db migrate -m "Initial migration"
+flask db upgrade
+```
 
-### Rủi ro 2: Replay Attack (Tấn công phát lại)
-*   **Phát hiện:** Kẻ gian bắt được token và gửi lại request cũ được đính kèm token (nếu token có thời hạn sống quá lâu và dùng trên đường truyền không đính mã hoá HTTPS).
-*   **Khắc phục đề xuất:**
-    *   Sử dụng Access Token có tuổi thọ (expiration `exp`) rất ngắn (ví dụ: 5 - 15 phút).
-    *   Sử dụng cơ chế Refresh Token để tự động đổi phiên đăng nhập một cách mượt mà mà không ảnh hưởng tới trải nghiệm người dùng, mã trong `app.py` đã ứng dụng cách này với `access_token` ngắn hạn và `refresh_token` dài hạn hơn.
-    *   Chặn đường bắt gói tin ở mạng trung gian bằng cách sử dụng HTTPS để tạo đường hầm mã hóa (SSL/TLS).
+### 3. Chạy server
+Khởi động ứng dụng Flask:
+```bash
+python app.py
+```
+> Hoặc chạy qua lệnh Flask:  
+> `flask --app app.py run -p 8000`
+
+### 4. Kiểm thử với Swagger UI
+Mở trình duyệt lên và đi tới địa chỉ: [http://127.0.0.1:8000/apidocs](http://127.0.0.1:8000/apidocs) để tương tác trực diện qua Swagger.
+
+Quy trình Test:
+- **Đăng ký**: Tạo một user thông qua Swagger form `/register`. (Nhập tuỳ chọn scopes là `["read:item", "write:item"]`, nhập role `admin` nếu muốn test tính năng xóa).
+- **Đăng nhập**: Ở endpoint `/login` điền thông tin đăng nhập, nó sẽ trả về `access_token` và gài `refresh_token` vào HttpOnly Cookie.
+- **Ủy quyền Swagger**: Lấy chuỗi `access_token` copy vào nút "**Authorize**" bằng việc nhập giá trị: `Bearer <token_vừa_copy>`. Mọi API khác bạn gọi sẽ tự đưa mã này lên header.
+- **Thao tác `/items`**: Gọi list, get, post, put, delete tuỳ theo scope/role.
+- **Xoay tua khóa `/refresh`**: Cookie (HttpOnly) có chứa Refresh token. Nếu bạn gọi endpoint `/refresh`, server sẽ đọc Cookie, cấp phát Tokens mới và blacklist token cũ.

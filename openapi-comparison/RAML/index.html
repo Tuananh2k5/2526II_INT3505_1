@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RAML - Users Test UI</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e0f2f1; color: #333; margin: 0; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h1, h2 { color: #00695c; }
+        .endpoint { background: #b2dfdb; padding: 15px; border-left: 5px solid #004d40; margin-bottom: 20px; border-radius: 4px; }
+        .method { font-weight: bold; padding: 4px 8px; border-radius: 3px; color: white; display: inline-block; margin-right: 10px; }
+        .get { background-color: #00897b; }
+        .post { background-color: #fbc02d; color: black; }
+        .put { background-color: #1e88e5; }
+        .delete { background-color: #e53935; }
+        input[type="text"], input[type="number"], input[type="email"] { width: calc(100% - 22px); padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; }
+        button { background: #004d40; color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+        button:hover { background: #00695c; }
+        pre { background: #263238; color: #eceff1; padding: 15px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Users API UI Test (RAML)</h1>
+        <p>This UI interacts with the Flask backend built alongside our <strong>RAML</strong> specification.</p>
+
+        <div class="endpoint">
+            <h2><span class="method get">GET</span> /api/users</h2>
+            <button onclick="getUsers()">Fetch Users</button>
+            <pre id="get-all-result">No data yet.</pre>
+        </div>
+
+        <div class="endpoint">
+            <h2><span class="method post">POST</span> /api/users</h2>
+            <input type="text" id="post-name" placeholder="Name (e.g. Charlie Brown)" required>
+            <input type="email" id="post-email" placeholder="Email (e.g. charlie@example.com)" required>
+            <button onclick="createUser()">Create User</button>
+            <pre id="post-result">No data yet.</pre>
+        </div>
+
+        <div class="endpoint">
+            <h2><span class="method get">GET</span> /api/users/{id}</h2>
+            <input type="number" id="get-id" placeholder="User ID (e.g. 1)" required>
+            <button onclick="getUser()">Get User by ID</button>
+            <pre id="get-single-result">No data yet.</pre>
+        </div>
+
+        <div class="endpoint">
+            <h2><span class="method put">PUT</span> /api/users/{id}</h2>
+            <input type="number" id="put-id" placeholder="User ID (e.g. 1)" required>
+            <input type="text" id="put-name" placeholder="New Name">
+            <input type="email" id="put-email" placeholder="New Email">
+            <button onclick="updateUser()">Update User</button>
+            <pre id="put-result">No data yet.</pre>
+        </div>
+
+        <div class="endpoint">
+            <h2><span class="method delete">DELETE</span> /api/users/{id}</h2>
+            <input type="number" id="delete-id" placeholder="User ID (e.g. 1)" required>
+            <button onclick="deleteUser()">Delete User</button>
+            <pre id="delete-result">No data yet.</pre>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = '/api/users';
+
+        async function getUsers() {
+            const res = await fetch(API_URL);
+            const data = await res.json();
+            document.getElementById('get-all-result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function createUser() {
+            const name = document.getElementById('post-name').value;
+            const email = document.getElementById('post-email').value;
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email })
+            });
+            const data = await res.json();
+            document.getElementById('post-result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getUser() {
+            const id = document.getElementById('get-id').value;
+            const res = await fetch(`${API_URL}/${id}`);
+            const data = await res.json();
+            document.getElementById('get-single-result').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function updateUser() {
+            const id = document.getElementById('put-id').value;
+            const name = document.getElementById('put-name').value;
+            const email = document.getElementById('put-email').value;
+            
+            const body = {};
+            if (name) body.name = name;
+            if (email) body.email = email;
+
+            const res = await fetch(`${API_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+            const data = await res.text();
+            try {
+                document.getElementById('put-result').textContent = JSON.stringify(JSON.parse(data), null, 2);
+            } catch (e) {
+                document.getElementById('put-result').textContent = data || `Status ${res.status}`;
+            }
+        }
+
+        async function deleteUser() {
+            const id = document.getElementById('delete-id').value;
+            const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+            document.getElementById('delete-result').textContent = res.status === 204 ? "User deleted successfully." : "Error or not found.";
+        }
+    </script>
+</body>
+</html>

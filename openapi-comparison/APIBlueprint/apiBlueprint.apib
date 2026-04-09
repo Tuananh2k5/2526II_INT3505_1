@@ -1,0 +1,96 @@
+FORMAT: 1A
+HOST: http://127.0.0.1:5002/api
+
+# Users API
+
+A simple CRUD API for managing users, demonstrating API Blueprint.
+
+## Users Collection [/users]
+
+### List All Users [GET]
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "name": "Alice Smith",
+                "email": "alice@example.com"
+            },
+            {
+                "id": 2,
+                "name": "Bob Jones",
+                "email": "bob@example.com"
+            }
+        ]
+
+### Create a New User [POST]
+
++ Request (application/json)
+
+        {
+            "name": "Charlie Brown",
+            "email": "charlie@example.com"
+        }
+
++ Response 201 (application/json)
+
+        {
+            "id": 3,
+            "name": "Charlie Brown",
+            "email": "charlie@example.com"
+        }
+
+## User [/users/{user_id}]
+
++ Parameters
+    + user_id: 1 (number, required) - The unique identifier of the user.
+
+### Retrieve a User [GET]
+
++ Response 200 (application/json)
+
+        {
+            "id": 1,
+            "name": "Alice Smith",
+            "email": "alice@example.com"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "error": "User not found"
+        }
+
+### Update a User [PUT]
+
++ Request (application/json)
+
+        {
+            "name": "Alice Cooper",
+            "email": "alice.cooper@example.com"
+        }
+
++ Response 200 (application/json)
+
+        {
+            "id": 1,
+            "name": "Alice Cooper",
+            "email": "alice.cooper@example.com"
+        }
+
++ Response 404 (application/json)
+
+        {
+            "error": "User not found"
+        }
+
+### Delete a User [DELETE]
+
++ Response 204
+
++ Response 404 (application/json)
+
+        {
+            "error": "User not found"
+        }

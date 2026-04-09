@@ -1,0 +1,84 @@
+#%RAML 1.0
+title: Users API
+version: v1
+baseUri: http://127.0.0.1:5003/api
+mediaType: application/json
+
+types:
+  User:
+    type: object
+    properties:
+      id?: integer
+      name: string
+      email: string
+
+/users:
+  get:
+    description: Retrieve a list of all users
+    responses:
+      200:
+        body:
+          application/json:
+            type: User[]
+            example: |
+              [
+                {"id": 1, "name": "Alice Smith", "email": "alice@example.com"},
+                {"id": 2, "name": "Bob Jones", "email": "bob@example.com"}
+              ]
+  post:
+    description: Create a new user
+    body:
+      application/json:
+        type: User
+        example: |
+          {"name": "Charlie Brown", "email": "charlie@example.com"}
+    responses:
+      201:
+        body:
+          application/json:
+            type: User
+            example: |
+              {"id": 3, "name": "Charlie Brown", "email": "charlie@example.com"}
+
+  /{user_id}:
+    uriParameters:
+      user_id:
+        type: integer
+        example: 1
+    get:
+      description: Get a specific user by ID
+      responses:
+        200:
+          body:
+            application/json:
+              type: User
+              example: {"id": 1, "name": "Alice Smith", "email": "alice@example.com"}
+        404:
+          body:
+            application/json:
+              example: {"error": "User not found"}
+    put:
+      description: Update a user's details
+      body:
+        application/json:
+          type: object
+          properties:
+            name?: string
+            email?: string
+      responses:
+        200:
+          body:
+            application/json:
+              type: User
+        404:
+          body:
+            application/json:
+              example: {"error": "User not found"}
+    delete:
+      description: Delete a user
+      responses:
+        204:
+        404:
+          body:
+            application/json:
+              example: {"error": "User not found"}

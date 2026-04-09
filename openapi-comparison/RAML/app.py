@@ -1,6 +1,17 @@
+import importlib.machinery
+import importlib.util
+import pkgutil
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import os
+
+if not hasattr(pkgutil, 'get_loader'):
+    def get_loader(name):
+        if name == '__main__':
+            return importlib.machinery.SourceFileLoader(name, __file__)
+        spec = importlib.util.find_spec(name)
+        return spec.loader if spec is not None else None
+    pkgutil.get_loader = get_loader
 
 app = Flask(__name__)
 CORS(app)

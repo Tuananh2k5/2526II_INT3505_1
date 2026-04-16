@@ -26,6 +26,10 @@ NEXT_ID = 3
 def index():
     return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'index.html')
 
+@app.route('/docs')
+def docs():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'docs.html')
+
 @app.route('/api/users', methods=['GET'])
 def get_users():
     return jsonify(list(USERS.values())), 200

@@ -1,39 +1,58 @@
 # RAML Implementation
 
-This directory contains a Flask application representing our **RAML** API specification (`raml.raml`).
+This directory contains a Flask application representing our **RAML** API specification (`raml.raml`). 
 
-Much like API Blueprint, RAML parsing in Python servers to do automatic routing isn't natively as standardized as OpenAPI (`connexion`). So here, the API is defined cleanly in RAML, and the Flask app implements the CRUD.
+RAML (RESTful API Modeling Language) is a YAML-based language for describing RESTful APIs.
 
-## Requirements
+## Project Structure
 
-The RAML file structure uses YAML to specify resources, types, and methods clearly.
+- `raml.raml`: The API specification.
+- `app.py`: The Flask backend implementing the API logic.
+- `index.html`: A custom, elegantly styled Test UI for CRUD operations.
+- `docs.html`: Professional documentation generated via `raml2html`.
+- `requirements.txt`: Python dependencies.
 
-## Installation
+## Installation & Setup
 
-1. Prepare your Python environment:
+1. **Prepare the environment**:
+   It is recommended to use a virtual environment:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+2. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
    ```
 
-2. (Optional) To render the official documentation from the RAML file using API Console GUI:
+3. **(Optional) Generate Professional Documentation**:
+   We use `raml2html` to generate a high-quality static documentation page:
    ```bash
-   npm install -g api-console-cli
-   api-console build raml.raml -o docs
+   # Install raml2html globally
+   npm install -g raml2html
+
+   # Generate documentation
+   raml2html raml.raml > docs.html
    ```
 
 ## Running the Server
 
-Start the application:
+Start the application by running:
 ```bash
 python app.py
 ```
-The server will start on `http://127.0.0.1:5003`.
+The server will start on **`http://127.0.0.1:5003`**.
 
-## Testing the API (Custom Test UI)
+## Testing the API
 
-Navigate to `http://127.0.0.1:5003/`. Unlike OpenAPI which ships with Swagger out of the box, we provide an elegantly styled HTML Test UI to perform the Users CRUD operations.
+We provide two ways to interact with the API:
 
-## Managing the Setup
+1. **Custom Test UI**: Navigate to **`http://127.0.0.1:5003/`**. This is a functional UI for CRUD operations.
+2. **Professional Docs**: Navigate to **`http://127.0.0.1:5003/docs`** (after generating `docs.html`). This provides a beautifully rendered view of the RAML specification.
 
-- **Design**: Open `raml.raml` to design endpoints mapping to resources.
-- **Implement**: Create the matching routes on `app.py`.
+## Implementation Details
+
+- **RAML**: Defines resources, methods, and data types in `raml.raml`.
+- **Flask**: Implements manual routing in `app.py`.
+- **CORS**: Enabled to allow seamless UI interaction.

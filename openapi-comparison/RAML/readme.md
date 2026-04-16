@@ -9,7 +9,8 @@ RAML (RESTful API Modeling Language) is a YAML-based language for describing RES
 - `raml.raml`: The API specification.
 - `app.py`: The Flask backend implementing the API logic.
 - `index.html`: A custom, elegantly styled Test UI for CRUD operations.
-- `docs.html`: Professional documentation generated via `raml2html`.
+- `openapi.json`: OpenAPI specification converted from RAML.
+- `swagger-ui.html`: Interactive Swagger UI for professional testing.
 - `requirements.txt`: Python dependencies.
 
 ## Installation & Setup
@@ -26,14 +27,14 @@ RAML (RESTful API Modeling Language) is a YAML-based language for describing RES
    pip install -r requirements.txt
    ```
 
-3. **(Optional) Generate Professional Documentation**:
-   We use `raml2html` to generate a high-quality static documentation page:
+3. **(Optional) Generate Interactive Documentation**:
+   Since native RAML interactive tools can be problematic, we convert the specification to OpenAPI to leverage the powerful **Swagger UI**:
    ```bash
-   # Install raml2html globally
-   npm install -g raml2html
+   # Install the converter
+   npm install -g oas-raml-converter
 
-   # Generate documentation
-   raml2html raml.raml > docs.html
+   # Convert RAML to OpenAPI 3.0
+   oas-raml-converter --from RAML --to OAS30 raml.raml > openapi.json
    ```
 
 ## Running the Server
@@ -48,11 +49,12 @@ The server will start on **`http://127.0.0.1:5003`**.
 
 We provide two ways to interact with the API:
 
-1. **Custom Test UI**: Navigate to **`http://127.0.0.1:5003/`**. This is a functional UI for CRUD operations.
-2. **Professional Docs**: Navigate to **`http://127.0.0.1:5003/docs`** (after generating `docs.html`). This provides a beautifully rendered view of the RAML specification.
+1. **Custom Test UI**: Navigate to **`http://127.0.0.1:5003/`**. This is a functional UI for basic CRUD operations.
+2. **Professional Interactive Docs**: Navigate to **`http://127.0.0.1:5003/docs`**. This uses **Swagger UI** to provide a professional, interactive experience (with "Try it Out" support) based on your RAML definition.
 
 ## Implementation Details
 
 - **RAML**: Defines resources, methods, and data types in `raml.raml`.
+- **Conversion**: The `openapi.json` is proof that RAML can be easily integrated into the broader OpenAPI ecosystem.
 - **Flask**: Implements manual routing in `app.py`.
 - **CORS**: Enabled to allow seamless UI interaction.

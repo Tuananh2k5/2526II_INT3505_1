@@ -28,7 +28,11 @@ def index():
 
 @app.route('/docs')
 def docs():
-    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'docs.html')
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'swagger-ui.html')
+
+@app.route('/openapi.json')
+def openapi_spec():
+    return send_from_directory(os.path.dirname(os.path.abspath(__file__)), 'openapi.json')
 
 @app.route('/api/users', methods=['GET'])
 def get_users():

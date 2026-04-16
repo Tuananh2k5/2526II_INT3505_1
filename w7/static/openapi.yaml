@@ -1,0 +1,115 @@
+openapi: "3.0.0"
+info:
+  title: "Product Inventory API"
+  version: "1.0.0"
+  description: "API for managing Product resources using Flask and Database."
+servers:
+  - url: "/api"
+paths:
+  /products:
+    get:
+      summary: "Get list of products"
+      operationId: "handlers.get_products"
+      responses:
+        '200':
+          description: "A list of products"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      summary: "Create a new product"
+      operationId: "handlers.create_product"
+      requestBody:
+        description: "Payload to create a new product"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        '201':
+          description: "Product created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+                
+  /products/{id}:
+    parameters:
+      - name: "id"
+        in: "path"
+        required: true
+        description: "ID of the product"
+        schema:
+          type: "integer"
+    get:
+      summary: "Get a product by ID"
+      operationId: "handlers.get_product"
+      responses:
+        '200':
+          description: "Product details"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        '404':
+          description: "Product not found"
+    put:
+      summary: "Update existing product"
+      operationId: "handlers.update_product"
+      requestBody:
+        description: "Payload to update a product"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductCreate"
+      responses:
+        '200':
+          description: "Product updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        '404':
+          description: "Product not found"
+    delete:
+      summary: "Delete a product"
+      operationId: "handlers.delete_product"
+      responses:
+        '204':
+          description: "Product deleted successfully"
+        '404':
+          description: "Product not found"
+
+components:
+  schemas:
+    Product:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+          description: "Product ID"
+        name:
+          type: "string"
+        price:
+          type: "number"
+          format: "float"
+        description:
+          type: "string"
+    ProductCreate:
+      type: "object"
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: "string"
+        price:
+          type: "number"
+          format: "float"
+        description:
+          type: "string"

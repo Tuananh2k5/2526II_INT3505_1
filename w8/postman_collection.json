@@ -1,0 +1,240 @@
+{
+	"info": {
+		"name": "Product API Tests",
+		"description": "Collection for testing the Product Management API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get All Products",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Response is an array\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.be.an('array');",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Verify created product schema\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property('id');",
+							"    pm.expect(jsonData.name).to.eql(\"Test Monitor\");",
+							"    pm.expect(jsonData.price).to.eql(199.99);",
+							"    pm.expect(jsonData.stock).to.eql(25);",
+							"    pm.environment.set(\"created_product_id\", jsonData.id);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"name\": \"Test Monitor\",\n    \"price\": 199.99,\n    \"stock\": 25\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/products",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Specific Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Verify product details\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    var expectedId = pm.environment.get(\"created_product_id\");",
+							"    pm.expect(jsonData.id).to.eql(expectedId);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/{{created_product_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"{{created_product_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Update Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});",
+							"",
+							"pm.test(\"Verify updated fields\", function () {",
+							"    var jsonData = pm.response.json();",
+							"    pm.expect(jsonData.price).to.eql(179.99);",
+							"    pm.expect(jsonData.stock).to.eql(20);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"price\": 179.99,\n    \"stock\": 20\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/products/{{created_product_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"{{created_product_id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Product",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 204\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(200);",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/products/{{created_product_id}}",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"products",
+						"{{created_product_id}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://127.0.0.1:5000",
+			"type": "string"
+		}
+	]
+}

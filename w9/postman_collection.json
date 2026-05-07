@@ -1,0 +1,366 @@
+{
+  "info": {
+    "name": "Payment API — Versioning Case Study",
+    "_postman_id": "payment-api-versioning-w9",
+    "description": "Collection test cho Payment API v1, v2 và Query Param Versioning.\nBase URL: http://localhost:5000",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "API v1 (DEPRECATED)",
+      "description": "Các endpoint Payment API phiên bản 1. Chú ý response headers: Deprecation, Sunset, Warning.",
+      "item": [
+        {
+          "name": "POST /api/v1/payments — Thanh toán hợp lệ",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-001\",\n  \"amount\": 150000,\n  \"payment_method\": \"card\",\n  \"card_number\": \"4111111111111111\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments"]
+            },
+            "description": "Tạo giao dịch hợp lệ qua v1. Kiểm tra response headers: Deprecation, Sunset, Link, Warning."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/payments — Sai payment_method",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-002\",\n  \"amount\": 200000,\n  \"payment_method\": \"e_wallet\",\n  \"card_number\": \"4111111111111111\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments"]
+            },
+            "description": "v1 chỉ hỗ trợ 'card'. Gửi 'e_wallet' để nhận 422 Unprocessable Entity."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v1/payments — Thiếu trường bắt buộc",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-003\",\n  \"amount\": 100000\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments"]
+            },
+            "description": "Thiếu payment_method và card_number => 400 Bad Request."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v1/payments — Danh sách giao dịch",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "payments"]
+            },
+            "description": "Lấy danh sách giao dịch mock của v1. Không có phân trang."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "API v2 (STABLE)",
+      "description": "Các endpoint Payment API phiên bản 2. Breaking changes so với v1.",
+      "item": [
+        {
+          "name": "POST /api/v2/payments — Thanh toán E-Wallet (MoMo)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-V2-001\",\n  \"amount\": 150000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"e_wallet\",\n  \"payment_details\": {\n    \"provider\": \"MoMo\",\n    \"account\": \"0901234567\"\n  },\n  \"billing_address\": {\n    \"full_name\": \"Nguyen Van A\",\n    \"phone\": \"0901234567\",\n    \"address\": \"123 Nguyen Hue, Quan 1\",\n    \"city\": \"Ho Chi Minh\"\n  },\n  \"metadata\": {\n    \"note\": \"Thanh toan don hang sinh nhat\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Tạo giao dịch v2 với phương thức e_wallet. Response có fee (1.5%) và net_amount."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v2/payments — Thanh toán Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-V2-002\",\n  \"amount\": 500000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"card\",\n  \"payment_details\": {\n    \"card_number\": \"4111111111111111\",\n    \"expiry\": \"12/27\",\n    \"cvv\": \"123\"\n  },\n  \"billing_address\": {\n    \"full_name\": \"Tran Thi B\",\n    \"phone\": \"0912345678\",\n    \"address\": \"456 Le Loi, Quan 3\",\n    \"city\": \"Ho Chi Minh\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Tạo giao dịch v2 với phương thức card. Fee 2.5%."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v2/payments — Thanh toán Bank Transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-V2-003\",\n  \"amount\": 1000000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"bank_transfer\",\n  \"payment_details\": {\n    \"bank_code\": \"VCB\",\n    \"account_number\": \"1234567890\",\n    \"account_name\": \"NGUYEN VAN A\"\n  },\n  \"billing_address\": {\n    \"full_name\": \"Nguyen Van A\",\n    \"phone\": \"0901234567\",\n    \"address\": \"789 Tran Hung Dao\",\n    \"city\": \"Ha Noi\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Tạo giao dịch v2 với phương thức bank_transfer. Fee 1.0%."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v2/payments — Thiếu billing_address",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-V2-004\",\n  \"amount\": 100000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"card\",\n  \"payment_details\": { \"card_number\": \"4111111111111111\" }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Thiếu billing_address (bắt buộc ở v2) => 400 Bad Request với danh sách errors."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/v2/payments — Amount âm (invalid)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-V2-005\",\n  \"amount\": -500.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"card\",\n  \"payment_details\": {},\n  \"billing_address\": {\n    \"full_name\": \"Test User\",\n    \"phone\": \"0900000000\",\n    \"address\": \"Test Address\",\n    \"city\": \"Test City\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Amount âm => validation thất bại, 400 Bad Request."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v2/payments — Danh sách (mặc định)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"]
+            },
+            "description": "Danh sách giao dịch v2, page=1, limit=10 mặc định."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/v2/payments — Phân trang",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v2/payments?page=2&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v2", "payments"],
+              "query": [
+                { "key": "page",  "value": "2" },
+                { "key": "limit", "value": "5" }
+              ]
+            },
+            "description": "Danh sách giao dịch v2 với phân trang: page=2, limit=5."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Query Param Versioning (Tham khảo)",
+      "description": "Minh hoạ versioning qua query parameter ?version=1 hoặc ?version=2.",
+      "item": [
+        {
+          "name": "GET /api/payments?version=2 — Thông tin endpoint",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments?version=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [{ "key": "version", "value": "2" }]
+            },
+            "description": "Kiểm tra thông tin endpoint và phiên bản đang active."
+          },
+          "response": []
+        },
+        {
+          "name": "GET /api/payments?version=1 — Thông tin endpoint v1",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/payments?version=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [{ "key": "version", "value": "1" }]
+            },
+            "description": "Kiểm tra thông tin endpoint version 1 qua query param."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/payments?version=1 — Thanh toán v1 (query param)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-QP-001\",\n  \"amount\": 100000,\n  \"payment_method\": \"card\",\n  \"card_number\": \"4111111111111111\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments?version=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [{ "key": "version", "value": "1" }]
+            },
+            "description": "Gọi logic v1 thông qua query param. Response chứa deprecation_warning."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/payments?version=2 — Thanh toán v2 (query param)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-QP-002\",\n  \"amount\": 250000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"bank_transfer\",\n  \"payment_details\": {\n    \"bank_code\": \"TCB\",\n    \"account_number\": \"9876543210\"\n  },\n  \"billing_address\": {\n    \"full_name\": \"Le Van C\",\n    \"phone\": \"0933333333\",\n    \"address\": \"10 Phan Chu Trinh\",\n    \"city\": \"Da Nang\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments?version=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [{ "key": "version", "value": "2" }]
+            },
+            "description": "Gọi logic v2 thông qua query param. Response header có Content-Version: 2."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/payments — Không truyền version (default v2)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"order_id\": \"ORD-QP-003\",\n  \"amount\": 75000.0,\n  \"currency\": \"VND\",\n  \"payment_method\": \"e_wallet\",\n  \"payment_details\": {\n    \"provider\": \"ZaloPay\",\n    \"account\": \"0944444444\"\n  },\n  \"billing_address\": {\n    \"full_name\": \"Pham Thi D\",\n    \"phone\": \"0944444444\",\n    \"address\": \"55 Hung Vuong\",\n    \"city\": \"Can Tho\"\n  }\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"]
+            },
+            "description": "Không truyền ?version => mặc định về v2 (DEFAULT_VERSION = '2')."
+          },
+          "response": []
+        },
+        {
+          "name": "POST /api/payments?version=99 — Version không hợp lệ",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/payments?version=99",
+              "host": ["{{base_url}}"],
+              "path": ["api", "payments"],
+              "query": [{ "key": "version", "value": "99" }]
+            },
+            "description": "Truyền version không tồn tại => 400 Bad Request với danh sách supported_versions."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
